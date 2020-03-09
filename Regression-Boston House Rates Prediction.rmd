@@ -1,0 +1,430 @@
+---
+title: 'IMT 573: Problem Set 7 - Regression - Solutions'
+author: "Saurabh Sharma"
+date: 'Due: Tuesday, November 19, 2019'
+output: pdf_document
+header-includes:
+- \newcommand{\benum}{\begin{enumerate}}
+- \newcommand{\eenum}{\end{enumerate}}
+- \newcommand{\bitem}{\begin{itemize}}
+- \newcommand{\eitem}{\end{itemize}}
+---
+
+<!-- This syntax can be used to add comments that are ignored during knitting process. -->
+
+##### Collaborators: <!-- BE SURE TO LIST ALL COLLABORATORS HERE! -->
+
+##### Instructions:
+
+Before beginning this assignment, please ensure you have access to R and RStudio; this can be on your own personal computer or on the IMT 573 R Studio Server. 
+
+1. Download the `problemset7.Rmd` file from Canvas or save a copy to your local directory on RStudio Server. Open `problemset7.Rmd` in RStudio and supply your solutions to the assignment by editing `problemset7.Rmd`. 
+
+2. Replace the "Insert Your Name Here" text in the `author:` field with your own full name. Any collaborators must be listed on the top of your assignment. 
+
+3. Be sure to include well-documented (e.g. commented) code chucks, figures, and clearly written text chunk explanations as necessary. Any figures should be clearly labeled and appropriately referenced within the text. Be sure that each visualization adds value to your written explanation; avoid redundancy -- you do not need four different visualizations of the same pattern.
+
+4.  Collaboration on problem sets is fun and useful, and we encourage it, but each student must turn in an individual write-up in their own words as well as code/work that is their own.  Regardless of whether you work with others, what you turn in must be your own work; this includes code and interpretation of results. The names of all collaborators must be listed on each assignment. Do not copy-and-paste from other students' responses or code.
+
+5. All materials and resources that you use (with the exception of lecture slides) must be appropriately referenced within your assignment.  
+
+6. Remember partial credit will be awarded for each question for which a serious attempt at finding an answer has been shown. Students are \emph{strongly} encouraged to attempt each question and to document their reasoning process even if they cannot find the correct answer. If you would like to include R code to show this process, but it does not run without errors, you can do so with the `eval=FALSE` option. (Note: I am also using the `include=FALSE` option here to not include this code in the PDF, but you need to remove this or change it to `TRUE` if you want to include the code chunk.)
+
+```{r example chunk with a bug, eval=FALSE, include=FALSE}
+a + b # these object dont' exist 
+# if you run this on its own it with give an error
+```
+
+7. When you have completed the assignment and have **checked** that your code both runs in the Console and knits correctly when you click `Knit PDF`, rename the knitted PDF file to `ps7_YourLastName_YourFirstName.pdf`, and submit the PDF file on Canvas.
+
+##### Setup
+
+In this problem set you will need, at minimum, the following R packages.
+
+```{r Setup, message=FALSE}
+# Load standard libraries
+library(tidyverse)
+library(MASS) # Modern applied statistics functions
+```
+
+\textbf{Housing Values in Suburbs of Boston}
+
+In this problem we will use the Boston dataset that is available in the \texttt{MASS} package. This dataset contains information about median house value for 506 neighborhoods in Boston, MA. Load this data and use it to answer the following questions.
+
+```{r}
+# Load Boston Dataset
+dim(Boston)
+boston <- as.data.frame(Boston) #creating boston dataset
+```
+
+
+
+1. Describe the data and variables that are part of the \texttt{Boston} dataset. Tidy data as necessary.
+
+Solution: In the Boston dataset, there are 506 rows and 14 columns. There are no NA or duplicated values in the data set.
+The description of the columns of the dataset is as follows:
+
+crim: per capita crime rate by town.
+
+zn:proportion of residential land zoned for lots over 25,000 sq.ft.
+
+indus:proportion of non-retail business acres per town.
+
+chas:Charles River dummy variable (= 1 if tract bounds river; 0 otherwise).
+
+nox:nitrogen oxides concentration (parts per 10 million).
+
+rm:average number of rooms per dwelling.
+
+age:proportion of owner-occupied units built prior to 1940.
+
+dis:weighted mean of distances to five Boston employment centres.
+
+rad:index of accessibility to radial highways.
+
+tax:full-value property-tax rate per \$10,000.
+
+ptratio:pupil-teacher ratio by town.
+
+black: 1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town.
+
+lstat: lower status of the population (percent).
+
+medv: median value of owner-occupied homes in \$1000s.
+
+
+```{r }
+summary(boston) #looking at the statistics
+view(boston)  
+dim(boston)   #dimenstions of dataset
+sum(is.na(boston)) # checking for NA values
+sum(duplicated(boston)) #checking for duplicated values
+```
+
+2. Consider this data in context, what is the response variable of interest?
+
+Solution: In this question, we have medv which is median value of owner-occupied homes in \$1000 and the dataset contains information about median house value for 506 neighborhoods in Boston, M. So, we can take it as our response variale here and keep other variables as predictor variables.
+
+  
+3. For each predictor, fit a simple linear regression model to predict the response. In which of the models is there a statistically significant association between the predictor and the response? Create some plots to back up your assertions. 
+
+
+Solution: We computed fit and residual for each of the predictor variables.
+          
+       1. for Zn we have p value as '2.2e-16 ***' and hence it is statistically significantly
+       2. for crim we have p value as '2.2e-16 ***' and hence it is statistically significantly
+       3. for indus we have p value as '2.2e-16 ***' and hence it is statistically significantly
+       4. for chas we have p value as ' 7.391e-05 ***' and hence it is statistically significantly
+       5. for nox we have p value as '2.2e-16 ***' and hence it is statistically significantly
+       6. for rm we have p value as '2.2e-16 ***' and hence it is statistically significantly
+       7. for age we have p value as '2.2e-16 ***' and hence it is statistically significantly
+       8. for dis we have p value as ' 1.207e-08 ***' and hence it is statistically significantly
+       9. for rad we have p value as '2.2e-16 ***' and hence it is statistically significantly
+      10. for tax we have p value as '2.2e-16 ***' and hence it is statistically significantly
+      11. for ptratio we have p value as '2.2e-16 ***' and hence it is statistically significantly
+      12. for black we have p value as ' 1.318e-14 ***' and hence it is statistically significantly
+      13.  for lstat we have p value as '2.2e-16 ***' and hence it is statistically significantly
+          
+In all the predictor variables we have statistically significant association between the predictor and the response variable. We have made the plots as follows:        
+```{r }
+
+#1.zn
+fit_zn <- lm(medv ~ zn, boston)
+summary(fit_zn)  
+confint(fit_zn, 'zn', level = 0.95)
+residuals_zn <- resid(fit_zn)
+plotResiduals_zn <- ggplot(data = data.frame(x = boston$medv, y= residuals_zn), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_zn <- plotResiduals_zn + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "zn residual plot", y = 'residual', x = 'medv')
+plotResiduals_zn
+
+#2 indus
+fit_indus <- lm(medv ~ indus, boston)
+summary(fit_indus)  
+confint(fit_indus, 'indus', level = 0.95)
+residuals_indus <- resid(fit_indus)
+plotResiduals_indus <- ggplot(data = data.frame(x = boston$medv, y= residuals_indus), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_indus <- plotResiduals_indus + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Indus residual plot", y = 'residual', x = 'medv')
+plotResiduals_indus
+
+#3 boston
+fit_chas <- lm(medv ~ chas, boston)
+summary(fit_chas)  
+confint(fit_chas, 'indus', level = 0.95)
+residuals_chas <- resid(fit_chas)
+plotResiduals_chas <- ggplot(data = data.frame(x = boston$medv, y= residuals_chas), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_chas <- plotResiduals_chas + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Chas residual plot", y = 'residual', x = 'medv')
+plotResiduals_chas
+
+#4
+fit_nox <- lm(medv ~ nox, boston)
+summary(fit_nox)  
+confint(fit_nox, 'indus', level = 0.95)
+residuals_nox <- resid(fit_nox)
+plotResiduals_nox <- ggplot(data = data.frame(x = boston$medv, y= residuals_nox), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_nox <- plotResiduals_nox + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Nox residual plot", y = 'residual', x = 'medv')
+plotResiduals_nox
+
+#5
+fit_rm <- lm(medv ~ rm, boston)
+summary(fit_rm) 
+confint(fit_rm, 'indus', level = 0.95)
+residuals_rm <- resid(fit_rm)
+plotResiduals_rm <- ggplot(data = data.frame(x = boston$medv, y= residuals_rm), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_rm <- plotResiduals_rm + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "rm residual plot", y = 'residual', x = 'medv')
+plotResiduals_rm
+
+#6
+fit_age<- lm(medv ~ age, boston)
+summary(fit_age)  
+confint(fit_age, 'indus', level = 0.95)
+residuals_age <- resid(fit_age)
+plotResiduals_age <- ggplot(data = data.frame(x = boston$medv, y= residuals_age), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_age <- plotResiduals_age + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Age residual plot", y = 'residual', x = 'medv')
+plotResiduals_age
+
+#7
+fit_dis<- lm(medv ~ dis, boston)
+summary(fit_dis) 
+confint(fit_dis, 'indus', level = 0.95)
+residuals_dis <- resid(fit_dis)
+plotResiduals_dis <- ggplot(data = data.frame(x = boston$medv, y= residuals_dis), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_dis <- plotResiduals_dis + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Dis residual plot", y = 'residual', x = 'medv')
+plotResiduals_dis
+
+#8
+fit_rad<- lm(medv ~ rad, boston)
+summary(fit_rad)  
+confint(fit_rad, 'indus', level = 0.95)
+residuals_rad <- resid(fit_rad)
+plotResiduals_rad <- ggplot(data = data.frame(x = boston$medv, y= residuals_rad), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_rad <- plotResiduals_rad + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Rad residual plot", y = 'residual', x = 'medv')
+plotResiduals_rad
+
+#9
+fit_tax<- lm(medv ~ tax, boston)
+summary(fit_tax)  
+confint(fit_tax, 'indus', level = 0.95)
+residuals_tax <- resid(fit_tax)
+plotResiduals_tax <- ggplot(data = data.frame(x = boston$medv, y= residuals_tax), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_tax <- plotResiduals_tax + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Tax residual plot", y = 'residual', x = 'medv')
+plotResiduals_tax
+
+#10
+fit_ptratio<- lm(medv ~ ptratio, boston)
+summary(fit_ptratio)  
+confint(fit_ptratio, 'indus', level = 0.95)
+residuals_ptratio <- resid(fit_ptratio)
+plotResiduals_ptratio <- ggplot(data = data.frame(x = boston$medv, y= residuals_ptratio), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_ptratio <- plotResiduals_ptratio + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Ptratio residual plot", y = 'residual', x = 'medv')
+plotResiduals_ptratio
+
+#11
+fit_black<- lm(medv ~ black, boston)
+summary(fit_black) 
+confint(fit_black, 'indus', level = 0.95)
+residuals_black <- resid(fit_black)
+plotResiduals_black <- ggplot(data = data.frame(x = boston$medv, y= residuals_black), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_black <- plotResiduals_black + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Black residual plot", y = 'residual', x = 'medv')
+plotResiduals_black
+
+#12
+fit_lstat<- lm(medv ~ lstat, boston)
+summary(fit_lstat)  
+confint(fit_lstat, 'indus', level = 0.95)
+residuals_lstat <- resid(fit_lstat)
+plotResiduals_lstat <- ggplot(data = data.frame(x = boston$medv, y= residuals_lstat), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_lstat <- plotResiduals_lstat + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Lstat residual plot", y = 'residual', x = 'medv')
+plotResiduals_lstat
+
+#13
+fit_crim<- lm(medv ~ crim, boston)
+summary(fit_crim)  
+confint(fit_crim, 'indus', level = 0.95)
+residuals_crim <- resid(fit_crim)
+plotResiduals_crim <- ggplot(data = data.frame(x = boston$medv, y= residuals_crim), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_crim <- plotResiduals_crim + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "Crim residual plot", y = 'residual', x = 'medv') + geom_hline(yintercept = 0)
+plotResiduals_crim
+
+
+```
+
+
+4. Fit a multiple regression model to predict the response using all of the predictors. Describe your results. For which predictors can we reject the null hypothesis $H_0: \beta_j = 0$?
+
+From the table below we can see that the 'indus' and 'age' variables are not significant as their p-values(<0.05)are high and there are no '*' for those two variables.So we can reject the null hypothesis for all the other values except for the 'age' and 'indus'.
+
+crim         0.001087 ** 
+zn           0.000778 ***
+indus        0.738288    
+chas         0.001925 ** 
+nox          4.25e-06 ***
+rm           < 2e-16 ***
+age          0.958229    
+dis          6.01e-13 ***
+rad          5.07e-06 ***
+tax          0.001112 ** 
+ptratio      1.31e-12 ***
+black        0.000573 ***
+lstat       < 2e-16 ***
+
+
+```{r}
+fit_multivariate<- lm(medv ~ crim+zn+indus+chas+nox+rm+age+dis+rad+tax+ptratio+black+lstat, boston) #creating multivariate fit
+summary(fit_multivariate)
+residuals_multivariate<- resid(fit_multivariate)
+
+plotResiduals_multivariate <- ggplot(data = data.frame(x = boston$medv, y= residuals_multivariate), aes(x = x, y=y)) + geom_point(color = 'red',size = 2)
+
+plotResiduals_multivariate <- plotResiduals_multivariate + 
+  stat_smooth(method = 'lm',se = FALSE, color = 'blue')+labs(title = "residual plot", y = 'residual', x = 'medv')
+plotResiduals_multivariate
+```
+
+
+5. How do your results from (3) compare to your results from (4)? Create a plot displaying the univariate regression coefficients from (3) on the x-axis and the multiple regression coefficients from part (4) on the y-axis. Use this visualization to support your response.
+
+SOlution:
+In (3), we found that all the variables came out to be significant but from (4) we observed that age and indus are not significant enough and hence with multivariate regression we got a better fit than univariate regression.
+
+Now, we will plot the univariate vs multivariate regression coefficients.
+According to our observations, we have found that there is a significant difference between values of univariate regression coefficients and the values of the multivariate regression for the variables nox,rm and chas. 
+
+ 
+
+```{r}
+
+#creating a vector for univariate coefficient
+uni <- c(coefficients(fit_crim)['crim'],coefficients(fit_zn)['zn'],coefficients(fit_indus)['indus'],coefficients(fit_chas)['chas'],coefficients(fit_nox)['nox'],coefficients(fit_rm)['rm'],coefficients(fit_age)['age'],coefficients(fit_dis)['dis'],coefficients(fit_rad)['rad'],coefficients(fit_tax)['tax'],coefficients(fit_ptratio)['ptratio'],coefficients(fit_black)['black'],coefficients(fit_lstat)['lstat'])
+
+#creating a vector for multivariate coefficient
+multi <-c(coefficients(fit_multivariate)[2:14])
+
+#creating a dataframe for univariate and multivariate coefficients
+coeff_df <-data.frame(uni,multi)
+
+plot_uni_vs_multi <- ggplot(coeff_df, aes(uni, multi)) + geom_point(color = 'blue',size = 2)  +labs(title = "Univariate vs Multivariate Regression coefficients", y = 'Multivariate', x = 'Univariate')
+
+plot_uni_vs_multi
+```
+
+6. Is there evidence of a non-linear association between any of the predictors and the response? To answer this question, for each predictor $X$ fit a model of the form:
+  
+  $$ Y = \beta_0 + \beta_1 X + \beta_2 X^2 + \beta_3 X^3 + \epsilon $$
+  
+Solution: 
+
+Crim: For crim we have a non-linear association as the value of beta_2,beta_3 are significant.
+zn: For zn we have a non-linear association as the value of beta_2,beta_3 are significant.
+indus: For indus we have a non-linear association as the value of beta_2,beta_3 are significant.
+age: For age, we have no association as the value of beta_1,beta_2,beta_3 are insignificant.
+nox: For nox we have a non-linear association as the value of beta_3 is significant.
+rm: For rm we have a non-linear association as the value of beta_2,beta_3 are significant.
+dis: For dis we have a non-linear association as the value of beta_2,beta_3 are significant.
+rad: For rad we have a non-linear association as the value of beta_2,beta_3 are significant.
+tax: For tax, we have no association as the value of beta_1,beta_2,beta_3 are insignificant.
+ptratio: For ptratio, we have no association as the value of beta_1,beta_2,beta_3 are insignificant.
+black: For black, we have no association as the value of beta_1,beta_2,beta_3 are insignificant.
+lstat: For lstat we have a non-linear association as the value of beta_2,beta_3 are significant.
+chas: For chas we have a linear association as the value of beta_1 is significant and other are insignificant.
+
+```{r}
+poly_crim <- lm(medv ~ poly(crim, 3, raw = TRUE), boston) #using poly function to check the beta values
+summary(poly_crim)
+
+poly_zn <- lm(medv ~ poly(zn, 3, raw = TRUE), boston)
+summary(poly_zn)
+
+poly_indus <- lm(medv ~ poly(indus, 3, raw = TRUE), boston)
+summary(poly_indus)
+
+
+poly_nox <- lm(medv ~ poly(nox, 3, raw = TRUE), boston)
+summary(poly_nox)
+
+poly_rm <- lm(medv ~ poly(rm, 3, raw = TRUE), boston)
+summary(poly_rm)
+
+poly_age <- lm(medv ~ poly(age, 3, raw = TRUE), boston)
+summary(poly_age)
+
+poly_dis <- lm(medv ~ poly(dis, 3, raw = TRUE), boston)
+summary(poly_dis)
+
+poly_rad <- lm(medv ~ poly(rad, 3, raw = TRUE), boston)
+summary(poly_rad)
+
+poly_chas <- lm(medv ~ poly(chas, 3, raw = TRUE), boston)
+summary(poly_chas)
+
+
+poly_tax <- lm(medv ~ poly(tax, 3, raw = TRUE), boston)
+summary(poly_tax)
+
+poly_ptratio <- lm(medv ~ poly(ptratio, 3, raw = TRUE), boston)
+summary(poly_ptratio)
+
+poly_black <- lm(medv ~ poly(black, 3, raw = TRUE), boston)
+summary(poly_black)
+
+poly_lstat <- lm(medv ~ poly(lstat, 3, raw = TRUE), boston)
+summary(poly_lstat)
+
+```
+  
+
+7. Consider performing a stepwise model selection procedure to determine the best fit model. Discuss your results. How is this model different from the model in (4)?
+
+Solution: On considering a stepwise model, we found that the backward selection is the chosen regression model and the values 'age' and 'indus' are removed from the model. First the age is removed which reduces the AIC value and then the indus is remoed which further reduces the value. After this point there is no reduction in the AIC value and hence it is the best model according to Stepwise function. We got the values which were very close to multivariate model.
+
+```{r}
+regression_model <-lm(medv ~ ., data =boston)
+step_aic_model <-stepAIC(regression_model, direction = "both")  #using stepAIC to create the stepwise regression model
+```
+
+
+  
+8. Evaluate the statistical assumptions in your regression analysis from (7) by performing a basic analysis of model residuals and any unusual observations. Discuss any concerns you have about your model.
+
+
+Solution: Here, we plot the residual plot for the vairables and we found that the value of the residuals is closer to yintercept = 0 and so it is a better approach as we tend to bring the residuals closer to zero to get the best fit. There are some unusual observations which are outliers in our observations and so this is a concern related to our model. Another static assumption that we have applied here is that we used the linear regression although we have found the variables whose beta_2 and beta_3 coefficients are significants and hence we should also try to apply non-linear models to our dataset.
+
+```{r}
+resid_final <-resid(stepAIC(regression_model, direction = "both")) #creating residual
+
+final_plot<-ggplot(data = data.frame(x = boston$medv, y= resid_final), aes(x = x, y=y)) + geom_point(color = 'red',size = 2) + labs(title = "Residual Plot") + geom_hline(yintercept = 0)
+
+final_plot
+
+resid_step_wise <-  resid(stepAIC(regression_model, direction = "both"))
+
+qqnorm(resid_step_wise, main = "Normal Q-Q Plot",
+       xlab = "Theoretical Quantiles", ylab = "StepAIC",
+       plot.it = TRUE, datax = FALSE)
+```
+
